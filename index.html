@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Canvas Drag and Drop</title>
+    <style>
+        #canvas-container {
+            position: relative;
+        }
+
+        #canvas {
+            border: 1px solid #000;
+        }
+    </style>
+</head>
+<body>
+    <div id="canvas-container">
+        <canvas id="canvas" width="500" height="500"></canvas>
+    </div>
+
+    <script>
+        // Get references to the canvas and its context
+        const canvas = document.getElementById("canvas");
+        const ctx = canvas.getContext("2d");
+
+        // Array to store draggable objects
+        const draggableObjects = [];
+
+        // Add a draggable object to the canvas
+        function addDraggableObject(x, y, width, height, color) {
+            const draggableObj = { x, y, width, height, color, isDragging: false };
+
+            draggableObjects.push(draggableObj);
+
+            // Draw the object on the canvas
+            drawDraggableObject(draggableObj);
+
+            // Attach mouse event listeners for dragging
+            canvas.addEventListener("mousedown", (e) => {
+                const rect = canvas.getBoundingClientRect();
+                const mouseX = e.clientX - rect.left;
+                const mouseY = e.clientY - rect.top;
+
+                draggableObjects.forEach((obj) => {
+                    if (
+                        mouseX >= obj.x &&
+                        mouseX <= obj.x + obj.width &&
+                        mouseY >= obj.y &&
+                        mouseY <= obj.y + obj.height
+                    ) {
+                        obj.isDragging = true;
+                    }
+                });
+            });
+
+            canvas.addEventListener("mousemove", (e) => {
+                const rect = canvas.getBoundingClientRect();
+                const mouseX = e.clientX - rect.left;
+                const mouseY = e.clientY - rect.top;
+
+                draggableObjects.forEach((obj) => {
+                    if (obj.isDragging) {
+                        obj.x = mouseX - obj.width / 2;
+                        obj.y = mouseY - obj.height / 2;
+                        clearCanvas();
+                        draggableObjects.forEach(drawDraggableObject);
+                    }
+                });
+            });
+
+            canvas.addEventListener("mouseup", () => {
+                draggableObjects.forEach((obj) => {
+                    obj.isDragging = false;
+                });
+            });
+        }
+
+        // Function to clear the canvas
+        function clearCanvas() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+
+        // Function to draw a draggable object
+        function drawDraggableObject(obj) {
+            ctx.fillStyle = obj.color;
+            ctx.fillRect(obj.x, obj.y, obj.width, obj.height);
+        }
+
+        // Add some draggable objects to the canvas
+        addDraggableObject(50, 50, 50, 50, "red");
+        addDraggableObject(150, 150, 50, 50, "blue");
+        addDraggableObject(250, 250, 50, 50, "green");
+    </script>
+</body>
+</html>
